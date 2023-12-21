@@ -1,23 +1,24 @@
 
-struct Point2D {
+pub struct Point2D {
     x: f64,
     y: f64,
 }
 
-struct Cell {
+pub struct LifeCell {
     alive: bool,
     position: Point2D,
-    neighbors: Vec<Cell>,
+    // pub neighbors: Vec<&'a LifeCell<'a>>,
+    pub neighbor_indices: Vec<usize>,
     current_state: bool,
     next_state: bool,
 }
 
-impl Cell {
+impl LifeCell {
     fn new(alive: bool, position: Point2D) -> Self {
         Self {
             alive,
             position,
-            neighbors: Vec::new(),
+            neighbor_indices: vec![],
             current_state: alive,
             next_state: alive,
         }
@@ -29,12 +30,12 @@ impl Cell {
         self.next_state = live;
     }
 
-    fn make_live(&mut self) {
+    pub fn make_live(&mut self) {
         self.set_state(true);
         // TODO: Change appearance
     }
 
-    fn make_dead(&mut self) {
+    pub fn make_dead(&mut self) {
         self.set_state(false);
         // TODO: Change appearance
     }
@@ -43,14 +44,19 @@ impl Cell {
         self.next_state != self.current_state
     }
 
-    fn prepare_update(&mut self) {
-        let live_neighbors: u8 = self.neighbors.iter().filter(|n| n.alive).collect().len();
+    pub fn get_neighbor_indices(&self) -> &Vec<usize> {
+        &self.neighbor_indices
+    }
+
+    pub fn prepare_update(&mut self, live_neighbors: u8) {
+        // This kinda smells (collecting into a Vec of references)...
+        // let live_neighbors: u8 = self.neighbors.iter().filter(|n| n.alive).collect::<Vec<&&LifeCell>>().len() as u8;
         if !(!self.current_state && live_neighbors < 3) {
             self.next_state = (self.current_state && live_neighbors == 2) || (live_neighbors == 3);
         }
     }
 
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         // TODO: Perhaps we can use match here?
         if self.needs_update() {
             if self.next_state {
