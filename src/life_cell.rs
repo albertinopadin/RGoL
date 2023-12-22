@@ -1,12 +1,11 @@
-
 pub struct Point2D {
     x: f64,
     y: f64,
 }
 
 pub struct LifeCell {
-    alive: bool,
-    position: Point2D,
+    pub alive: bool,
+    pub position: Point2D,
     // pub neighbors: Vec<&'a LifeCell<'a>>,
     pub neighbor_indices: Vec<usize>,
     current_state: bool,
