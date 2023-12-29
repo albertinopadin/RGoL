@@ -1,35 +1,18 @@
-use opengl_graphics::*;
+use crate::app::{run_loop, App};
+use crate::life_cell::LifeCell;
+use opengl_graphics::GlGraphics;
 use piston_window::*;
+
+mod app;
 mod grid;
 mod life_cell;
 
-const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-
-struct App {
-    pub(crate) gl: GlGraphics,
-}
-
-impl App {
-    fn render(&mut self, args: &RenderArgs) {
-        self.gl.draw(args.viewport(), |c, g| {
-            g.clear_color(BLACK);
-        });
-    }
-
-    fn update(&mut self, args: &UpdateArgs) {}
-}
-
-fn run_loop(app: &mut App, w: &mut PistonWindow) {
-    let mut events = Events::new(EventSettings::new());
-    while let Some(e) = events.next(w) {
-        if let Some(args) = e.render_args() {
-            app.render(&args);
-        }
-
-        if let Some(args) = e.update_args() {
-            app.update(&args);
-        }
-    }
+fn get_num_alive(cells: &Vec<LifeCell>) -> usize {
+    cells
+        .iter()
+        .filter(|c| c.alive)
+        .collect::<Vec<&LifeCell>>()
+        .len()
 }
 
 fn main() {
@@ -43,6 +26,18 @@ fn main() {
 
     let gl = GlGraphics::new(opengl);
 
-    let mut app = App { gl };
+    let x_cells = 100;
+    let y_cells = 100;
+    let mut app = App::new(gl, x_cells, y_cells);
+    let live_prob: f64 = 0.50;
+    println!(
+        "Num alive before randomize: {}",
+        get_num_alive(&app.grid.cells)
+    );
+    app.grid.randomize(live_prob);
+    println!(
+        "Num alive after randomize: {}",
+        get_num_alive(&app.grid.cells)
+    );
     run_loop(&mut app, &mut window);
 }

@@ -1,25 +1,30 @@
-pub struct Point2D {
-    x: f64,
-    y: f64,
-}
+use graphics::color::{BLACK, GREEN};
+use graphics::types::Color;
+use graphics::Rectangle;
 
 pub struct LifeCell {
-    pub alive: bool,
-    pub position: Point2D,
+    pub(crate) alive: bool,
+    pub(crate) rect: Rectangle,
+    pub(crate) corners: [f64; 4],
     // pub neighbors: Vec<&'a LifeCell<'a>>,
-    pub neighbor_indices: Vec<usize>,
+    pub(crate) neighbor_indices: Vec<usize>,
     current_state: bool,
     next_state: bool,
+    alive_color: [f32; 4],
+    dead_color: [f32; 4],
 }
 
 impl LifeCell {
-    fn new(alive: bool, position: Point2D) -> Self {
+    pub(crate) fn new(alive: bool, corners: [f64; 4]) -> Self {
         Self {
             alive,
-            position,
+            rect: Rectangle::new(if alive { GREEN } else { BLACK }),
+            corners,
             neighbor_indices: vec![],
             current_state: alive,
             next_state: alive,
+            alive_color: GREEN,
+            dead_color: BLACK,
         }
     }
 
@@ -31,12 +36,12 @@ impl LifeCell {
 
     pub fn make_live(&mut self) {
         self.set_state(true);
-        // TODO: Change appearance
+        self.rect.color = self.alive_color;
     }
 
     pub fn make_dead(&mut self) {
         self.set_state(false);
-        // TODO: Change appearance
+        self.rect.color = self.dead_color;
     }
 
     fn needs_update(&self) -> bool {
