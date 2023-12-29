@@ -77,14 +77,14 @@ impl Grid {
     fn update(&mut self) -> u64 {
         for x in 0..self.x_cells {
             for y in 0..self.y_cells {
-                let neighbor_idxs =
-                    self.cells[(x + y * self.x_cells) as usize].get_neighbor_indices();
+                let cell_idx = (x + y * self.x_cells) as usize;
+                let neighbor_idxs = self.cells[cell_idx].get_neighbor_indices();
                 let live_neighbors: u8 = neighbor_idxs
                     .iter()
                     .filter(|nidx| self.cells[**nidx].alive)
                     .collect::<Vec<&usize>>()
                     .len() as u8;
-                self.cells[(x + y * self.x_cells) as usize].prepare_update(live_neighbors);
+                self.cells[cell_idx].prepare_update(live_neighbors);
             }
         }
 
