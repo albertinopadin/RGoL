@@ -26,8 +26,8 @@ fn main() {
 
     let gl = GlGraphics::new(opengl);
 
-    let x_cells = 100;
-    let y_cells = 100;
+    let x_cells = 400;
+    let y_cells = 400;
     let mut app = App::new(gl, x_cells, y_cells);
     let live_prob: f64 = 0.50;
     println!(

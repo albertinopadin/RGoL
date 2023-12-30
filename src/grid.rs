@@ -1,9 +1,10 @@
 use crate::life_cell::LifeCell;
 use graphics::rectangle::rectangle_by_corners;
 use rand::Rng;
+use rayon::iter::*;
 
-const CELL_SPACING: f64 = 5.0;
-const CELL_SIZE: f64 = 15.0;
+const CELL_SPACING: f64 = 1.0;
+const CELL_SIZE: f64 = 5.0;
 
 pub struct Grid {
     x_cells: u32,
@@ -95,24 +96,25 @@ impl Grid {
     }
 
     pub(crate) fn update(&mut self) -> u64 {
-        for x in 0..self.x_cells {
-            for y in 0..self.y_cells {
-                let cell_idx = (x + y * self.x_cells) as usize;
-                let neighbor_idxs = self.cells[cell_idx].get_neighbor_indices();
-                let live_neighbors: u8 = neighbor_idxs
-                    .iter()
-                    .filter(|nidx| self.cells[**nidx].alive)
-                    .collect::<Vec<&usize>>()
-                    .len() as u8;
-                self.cells[cell_idx].prepare_update(live_neighbors);
-            }
-        }
+        let alive_grid = self
+            .cells
+            .par_iter()
+            .map(|cell| cell.alive)
+            .collect::<Vec<bool>>();
 
-        for x in 0..self.x_cells {
-            for y in 0..self.y_cells {
-                self.cells[(x + y * self.x_cells) as usize].update();
-            }
-        }
+        self.cells.par_iter_mut().for_each(|cell| {
+            let neighbor_idxs = cell.get_neighbor_indices();
+            let live_neighbors: u8 = neighbor_idxs
+                .iter()
+                .filter(|nidx| alive_grid[**nidx])
+                .collect::<Vec<&usize>>()
+                .len() as u8;
+            cell.prepare_update(live_neighbors);
+        });
+
+        self.cells.par_iter_mut().for_each(|cell| {
+            cell.update();
+        });
 
         self.generation += 1;
         self.generation

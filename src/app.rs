@@ -1,6 +1,6 @@
 use crate::grid::Grid;
-use graphics::color::{BLACK, GREEN};
-use graphics::{Graphics, Rectangle};
+use graphics::color::BLACK;
+use graphics::Graphics;
 use opengl_graphics::GlGraphics;
 use piston::{EventSettings, Events, RenderArgs, UpdateArgs};
 use piston_window::{PistonWindow, RenderEvent, UpdateEvent};
@@ -28,12 +28,10 @@ impl App {
         self.grid.update();
         self.gl.draw(args.viewport(), |c, g| {
             g.clear_color(BLACK);
-            for x in 0..self.x_cells {
-                for y in 0..self.y_cells {
-                    let cell = &(self.grid.cells[(x + y * self.x_cells) as usize]);
-                    cell.rect.draw(cell.corners, &c.draw_state, c.transform, g);
-                }
-            }
+
+            self.grid.cells.iter().for_each(|cell| {
+                cell.rect.draw(cell.corners, &c.draw_state, c.transform, g);
+            });
         });
     }
 
